@@ -46,7 +46,17 @@ int main(int argc, char *argv[]){
                 printf("Intente ingresando un numero mayor a 4\n");
             }
             else{
+                Graph* cities = createGraph(size, "map.txt");
                 printf("Grafo creado con %d nodos\n", size);
+                for (int i = 0; i < cities->numVertex; i++){
+                    printf("Conexiones vértice [%c]:", cities->vertList[i].letter);
+                    Edge* curr = cities->vertList[i].edgeListHead;
+                    while (curr != NULL){
+                        printf(" %c(%d)", curr->destVert->letter, curr->cost);
+                        curr = curr->nextEdge;
+                    }
+                    printf("\n");
+                }
             }
             break;
         case read:

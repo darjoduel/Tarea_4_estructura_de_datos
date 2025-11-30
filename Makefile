@@ -6,7 +6,7 @@ TARGET = pvv
 all: $(TARGET)
 
 $(TARGET): pvv.c
-	$(CC) $(CFLAGS) -o $(TARGET) pvv.c
+	$(CC) $(CFLAGS) -o $(TARGET) pvv.c functions.c
 
 clean:
 	del /f /q $(TARGET).exe 2>nul || rm -f $(TARGET)
