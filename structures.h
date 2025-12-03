@@ -6,11 +6,18 @@
 typedef struct VertexStruct Vertex;
 typedef struct EdgeStruct Edge;
 typedef struct GraphStruct Graph;
+typedef struct QueueStruct Queue;
+
+struct QueueStruct{
+    int *items;
+    int front;
+    int rear;
+    int capacity;
+};
 
 struct VertexStruct {
     int id;
     char letter;
-
     //Dynamic array to store the list of edges.
     Edge* edgeListHead;
 };
@@ -24,7 +31,6 @@ struct EdgeStruct {
 
 struct GraphStruct {
     int numVertex;
-    
     //This list will have a set size, so there is 
     //no need to handle dynamic arrays to connect all vertices
     Vertex* vertList;

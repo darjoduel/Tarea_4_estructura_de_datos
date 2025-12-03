@@ -47,24 +47,24 @@ int main(int argc, char *argv[]){
             }
             else{
                 Graph* cities = createGraph(size, "map.txt");
+                ShowGraph(cities);
                 printf("Grafo creado con %d nodos\n", size);
-                for (int i = 0; i < cities->numVertex; i++){
-                    printf("Conexiones vértice [%c]:", cities->vertList[i].letter);
-                    Edge* curr = cities->vertList[i].edgeListHead;
-                    while (curr != NULL){
-                        printf(" %c(%d)", curr->destVert->letter, curr->cost);
-                        curr = curr->nextEdge;
-                    }
-                    printf("\n");
-                }
             }
             break;
         case read:
-            if(!FileExists(argv[2])){
-                printf("El archivo %s no existe\n", argv[2]);
+            if(pvv_read(argv[2]) == 0){
+                printf("Agregando enlaces desde el archivo\n");
+            }
+            else{
+                printf("Error. Archivo no existe o esta mal escrito, intente nuevamente\n");
             }
             break;
         case all:
+            char *letras = CheckGraphText("map.txt", 5);
+            printf("\n");
+            for(int i = 0; i < sizeof(letras);i++){
+                printf("%c ", letras[i]);
+            }
             break;
         case exit:
             break;
