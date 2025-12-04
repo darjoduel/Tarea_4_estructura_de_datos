@@ -1,14 +1,24 @@
-# Makefile portable para LRU
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
-TARGET = pvv
+CC      = gcc
+CFLAGS  = -Wall -Wextra -Werror -std=c99 -g
+TARGET  = pvv
+SRCS    = pvv.c functions.c
+OBJS    = $(SRCS:.c=.o)
 
 all: $(TARGET)
 
-$(TARGET): pvv.c
-	$(CC) $(CFLAGS) -o $(TARGET) pvv.c
+$(TARGET): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^
+
+%.o: %.c functions.h structures.h commands.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	del /f /q $(TARGET).exe 2>nul || rm -f $(TARGET)
+ifeq ($(OS),Windows_NT)
+	del /Q $(TARGET).exe $(OBJS) *.exe *.o 2>nul || true
+else
+	rm -f $(TARGET) $(OBJS) *.exe *.o
+endif
 
-.PHONY: all clean
+rebuild: clean all
+
+.PHONY: all clean rebuild
