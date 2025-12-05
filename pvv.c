@@ -97,10 +97,14 @@ int main() {
              if (cities == NULL) {
                 printf("ERROR: Primero usa 'start'\n");
                 continue;
-                }
+            }
+
+            int numVert = cities->numVertex;
+
+            free(cities);
     
             // Crear el grafo desde el archivo
-            cities = createGraph(cities->numVertex, arg);
+            cities = createGraph(numVert, arg);
     
             if (cities) {
                     printf("Grafo creado con %d ciudades.\n", cities->numVertex);
