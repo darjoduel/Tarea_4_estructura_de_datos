@@ -69,76 +69,52 @@ int main() {
             printf("  exit             → Salir y liberar memoria\n");
             printf("  help             → Mostrar esta ayuda\n\n");
 
-        } else if (cmd_hash == start || strcmp(command, "start") == 0) {//START
+        } else if (cmd_hash == start || strcmp(command, "start") == 0) {
             if (cities != NULL) {
                 printf("Ya existe un grafo. Usa 'exit' primero.\n");
                 continue;
             }
 
+            int n = CharToNum(arg);
+            if (n < 4) {
+                n = 4;
+                printf("Usando tamaño mínimo de 4 ciudades.\n");
+            }
+    
             cities = (Graph*)malloc(sizeof(Graph));
-            //Detecta e tamaño real de las ciudades en map.txt
-            cities->numVertex = CharToNum(arg);
-            if (cities->numVertex < 4) {
-                cities->numVertex = 4;
-                printf("Usando tamano minimo de 4 ciudades.\n");
-                continue;
-            }
-            
-            printf("numero de ciudades en el grafo antes de createGraph: %d\n", cities->numVertex);
+            if (!cities) {
+                printf("Error al asignar memoria para el grafo.\n");
             continue;
-            
-            /*char unique_letters[26] = {0};  // Asumimos max 26 letras
-            int letter_count = 0;
-            FILE *source_graph = fopen("map.txt", "r");
-            if (!source_graph) {
-                printf("Error: No existe 'map.txt'. Crea el archivo primero.\n");
-                continue;
             }
-            char v1, v2;
-            int cost;
-            while (fscanf(source_graph, " %c %c %d", &v1, &v2, &cost) == 3) {
-                int found1 = 0, found2 = 0;
-                for (int i = 0; i < letter_count; i++) {
-                    if (unique_letters[i] == v1) found1 = 1;
-                    if (unique_letters[i] == v2) found2 = 1;
-                }
-                if (!found1) unique_letters[letter_count++] = v1;
-                if (!found2) unique_letters[letter_count++] = v2;
-            }
-            fclose(source_graph);
-            real_size = letter_count;*/
-
-            /*// Ignoramos 'n' del usuario si lo dio; usamos real_size
-            if (pvv_create(real_size) != 0) {
-                printf("Error al crear archivo 'graphdata'.\n");
-                continue;
-            }*/
-            /*cities = createGraph(real_size, "map.txt");
-            if (cities) {
-                printf("Grafo creado con %d ciudades (detectadas automáticamente de 'map.txt').\n", real_size);
-                ShowGraph(cities);
-            } else {
-                printf("Error al crear el grafo.\n");
-            }*/
+    
+            cities->numVertex = n;
+            cities->vertList = NULL; // Se inicializará en createGraph
+    
+            printf("Grafo preparado para %d ciudades.\n", n);
+            printf("Usa 'read <archivo>' para cargar las conexiones.\n");
 
         } else if (cmd_hash == read || strcmp(command, "read") == 0) {//READ
-            if (cities == NULL) {
+             if (cities == NULL) {
                 printf("ERROR: Primero usa 'start'\n");
                 continue;
-            }
+                }
+    
+            // Crear el grafo desde el archivo
             cities = createGraph(cities->numVertex, arg);
+    
             if (cities) {
-                printf("Grafo creado con %d ciudades (detectadas automaticamente de 'map.txt').\n", cities->numVertex);
-                ShowGraph(cities);
+                    printf("Grafo creado con %d ciudades.\n", cities->numVertex);
+                    ShowGraph(cities);
+        
+        // Actualizar graphdata con el archivo fuente
+                    if (pvv_read(arg) == 0) {
+                        printf("\nBuscando ciclo hamiltoniano...\n");
+                        findHamiltonianCycle(cities);
+                    } else {
+                        printf("Advertencia: No se pudo actualizar graphdata.\n");
+                    }
             } else {
-                printf("Error al crear el grafo.\n");
-            }
-            if (pvv_read(arg) == 0) {
-                printf("Enlaces cargados correctamente desde '%s'\n", arg);
-                printf("Buscando ciclo hamiltoniano...\n");
-                findHamiltonianCycle(cities);
-            } else {
-                printf("Error: No se pudo leer el archivo '%s'\n", arg);
+                printf("Error al crear el grafo desde '%s'.\n", arg);
             }
 
         } else if (cmd_hash == all || strcmp(command, "all") == 0) {//ALL
