@@ -1,6 +1,7 @@
-*.exze
+*.exe
 *.out
 *.obj
 *.o
 pvv
 pvv.exe
+.vscode/

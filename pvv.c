@@ -106,11 +106,24 @@ int main() {
             Graph* newGraph = createGraph(numVert, arg);
     
             if (newGraph){/*si se creo bien, ahora si libera cities*/
+                          /*liberar todas las aristas del grafo anterior*/
+                if(cities->vertList){
+                    for (int i = 0; i < cities->numVertex; i++) {
+                        Edge *curr = cities->vertList[i].edgeListHead;
+                        while (curr) {
+                            Edge *temp = curr;
+                            curr = curr->nextEdge;
+                            free(temp);
+                        }
+                    }
+                    free(cities->vertList);
+                }
                 free(cities);
+                /*ahora se asigna el nuevo grafo*/
                 cities = newGraph;
                 printf("Grafo creado con %d ciudades.\n", cities->numVertex);
                 ShowGraph(cities);
-        
+
                 // Actualizar graphdata con el archivo fuente
                     if (pvv_read(arg) == 0) {
                         printf("\nBuscando ciclo hamiltoniano...\n");
