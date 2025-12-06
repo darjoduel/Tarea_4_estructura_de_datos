@@ -99,18 +99,19 @@ int main() {
                 continue;
             }
 
+            /*guarda el numero de vertices antes de intentar cargar*/
             int numVert = cities->numVertex;
 
-            free(cities);
+            //intenta crear el grafo desde el archivo SIN liberar cities aún
+            Graph* newGraph = createGraph(numVert, arg);
     
-            // Crear el grafo desde el archivo
-            cities = createGraph(numVert, arg);
-    
-            if (cities) {
-                    printf("Grafo creado con %d ciudades.\n", cities->numVertex);
-                    ShowGraph(cities);
+            if (newGraph){/*si se creo bien, ahora si libera cities*/
+                free(cities);
+                cities = newGraph;
+                printf("Grafo creado con %d ciudades.\n", cities->numVertex);
+                ShowGraph(cities);
         
-        // Actualizar graphdata con el archivo fuente
+                // Actualizar graphdata con el archivo fuente
                     if (pvv_read(arg) == 0) {
                         printf("\nBuscando ciclo hamiltoniano...\n");
                         findHamiltonianCycle(cities);
