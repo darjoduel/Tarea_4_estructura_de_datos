@@ -18,11 +18,11 @@ struct QueueStruct{
 struct VertexStruct {
     int id;
     char letter;
-    //Dynamic array to store the list of edges.
+    //Arreglo dinamico para almacenar los bordes
     Edge* edgeListHead;
 };
 
-//Represents a one way path between the owner and another vertex.
+//REpresenta un camino unidireccional entre el dueño y otro vertice.
 struct EdgeStruct {
     Vertex* destVert;
     int cost;
@@ -31,8 +31,8 @@ struct EdgeStruct {
 
 struct GraphStruct {
     int numVertex;
-    //This list will have a set size, so there is 
-    //no need to handle dynamic arrays to connect all vertices
+    //Esta lista tendra tamaño fijo, asi que no hay 
+    //necesidad de manejar el arreglo dinamico para conectar los vertices
     Vertex* vertList;
 };
 

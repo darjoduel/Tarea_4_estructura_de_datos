@@ -2,7 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "structures.h"
-#include "functions.h"
+
+// declaración para evitar inclusión circular
+int FileExists(const char *filename);
 
 int pvv_create(int size){
     FILE *data = fopen("graphdata", "w");

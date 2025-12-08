@@ -221,88 +221,148 @@ Graph* createGraph(int size, const char* filename) {
 
 //CICLO HAMILTONIANO
 
-bool isSafe(int v, int pos, int path[], Graph* map) {
-    Vertex* u = &map->vertList[path[pos - 1]];
-    Vertex* nextV = &map->vertList[v];
-    
-    Edge* curr = u->edgeListHead;
-    while (curr != NULL) { 
-        if (curr->destVert->id == nextV->id) {
-            return true;
+/*obtiene el costo de una arista entre dos vetrices*/
+int getEdgeCost(Graph* map, int from, int to)
+{
+    Vertex* fromVertex = &map->vertList[from];
+    Edge* curr = fromVertex->edgeListHead;
+
+    while (curr != NULL)
+    {
+        if (curr->destVert->id == to)
+        {
+            return curr->cost;
         }
         curr = curr->nextEdge;
     }
-    return false; 
+    return -1; /*indica que no existe conexión*/
 }
 
-bool hamiltonianCycleUtil(Graph* map, int path[], int pos) {
+bool isSafe(int v, int pos, int path[], Graph* map) {
+    if (pos==0) return true;
+
+    int lastVertex = path[pos - 1];
+    int cost = getEdgeCost(map, lastVertex, v);
+
+    return (cost != -1); /*hay conexion*/
+}
+
+/*retrocedimiento para encontrar el ciclo de menor costo*/
+void pvvBacktrack(Graph* map, int path[], bool visited[], int pos, 
+                  int currentCost, pvvSolution* solution)
+{
     int numVert = map->numVertex;
+    
+    /*caso base: se han visitado todas las ciudades*/
+    if (pos == numVert)
+    {
+        int lastVertex  = path[pos - 1];
+        int firstVertex = path[0];
+        int returnCost  = getEdgeCost(map, lastVertex, firstVertex);
 
-    if (pos == numVert) {
-        Vertex* last = &map->vertList[path[pos - 1]];
-        Vertex* first = &map->vertList[path[0]];
-        
-        Edge* curr = last->edgeListHead;
-        while (curr != NULL) {
-            if (curr->destVert->id == first->id) {
-                return true; 
-            }
-            curr = curr->nextEdge;
-        }
-        return false; 
-    }
-
-    for (int v = 0; v < numVert; v++) { 
-        if (isSafe(v, pos, path, map)) {
-            bool alreadyUsed = false;
-            for (int i = 0; i < pos; i++) {
-                if (path[i] == v) {
-                    alreadyUsed = true;
-                    break;
+        if (returnCost != -1)
+        {
+            int totalCost = currentCost + returnCost;
+            if (!solution->found || totalCost < solution->bestCost)
+            {
+                solution->found = true;
+                solution->bestCost = totalCost;
+                /*copiar el camino*/
+                for (int i = 0; i < numVert; i++)
+                {
+                    solution->bestPath[i] = path[i];
                 }
             }
-            if (alreadyUsed) continue;
+        }
+        return;
+    }
+    /*probar con cada vertice no visitado*/
+    for (int v = 0; v < numVert; v++)
+    {
+        if (!visited[v] && isSafe(v, pos, path, map))
+        {/*calcular el costo para ir al proximo vertice*/
+            int edgeCost = 0;
+            if (pos > 0){
+                edgeCost = getEdgeCost(map, path[pos - 1], v);
+            }
 
+            /* Poda: si se supera el mejor costo calculado, no seguir*/
+            if (solution->found && (currentCost + edgeCost >= solution->bestCost)){
+                continue; 
+            }
+            /*marcar como visitado el vertice*/
+            visited[v] = true;
             path[pos] = v;
-            if (hamiltonianCycleUtil(map, path, pos + 1))
-                return true;
+
+            /*recursion !!!!!!*/
+            pvvBacktrack(map, path, visited, pos + 1, currentCost + edgeCost, solution);
+
+            /*bakctracking*/
+            visited[v] = false;
             path[pos] = -1;
         }
     }
-    return false; 
 }
 
-void findHamiltonianCycle(Graph* map) {
-    if (map == NULL || map->numVertex < 1) {
-        printf("ERROR: El grafo no ha sido creado o es inválido.\n");
+/*función para resolver el pvv*/
+void solvePVV(Graph* map)
+{
+    if (map == NULL || map -> numVertex < 1)
+    {
+        printf("ERROR: El grafo no ha sido creado o es invalido.\n");
         return;
     }
-    
+
     int numVert = map->numVertex;
+    /*inicializar estructuras*/
     int *path = malloc(numVert * sizeof(int));
-    if (!path) {
-        printf("Error de asignación de memoria.\n");
+    bool *visited = malloc(numVert * sizeof(bool));
+    pvvSolution solution;
+    solution.bestPath = malloc(numVert * sizeof(int));
+    solution.bestCost = INT_MAX;
+    solution.found = false;
+
+    if (!path || !visited || !solution.bestPath)
+    {
+        printf("Error de asignacion de memoria.\n");
+        free(path);
+        free(visited);
+        free(solution.bestPath);
         return;
     }
-
-    for (int i = 0; i < numVert; i++) {
+    /*inicializar*/
+    for (int i = 0; i < numVert; i++)
+    {
         path[i] = -1;
+        visited[i] = false;
     }
+ 
+    /*comenzar desde el primer vertice*/
+    path[0] = 0;
+    visited[0] = true;
 
-    path[0] = 0; 
-    
-    printf("\n--- Verificando la existencia de una ruta viable ---\n");
-    
-    if (hamiltonianCycleUtil(map, path, 1) == false) {
-        printf("No existe un camino que recorra todas las ciudades y regrese a la ciudad de origen.\n");
+    printf("\n=== Verificando la existencia de una ruta viable ===\n");
+    /*ejecutar backtracking*/
+    pvvBacktrack(map, path, visited, 1, 0, &solution);
+
+    /*prints de resultados*/
+    if (!solution.found){
+        printf("No existe un camino que recorra todas las ciudades y regrese al origen.\n");
     } else {
-        printf("Existe un camino que recorre todas las ciudades y regresa a la ciudad de origen.\n");
-        printf("Uno de los ciclos hamiltonianos encontrados es: ");
-        for (int i = 0; i < numVert; i++) {
-            printf("%c -> ", map->vertList[path[i]].letter);
+        printf("Existe un camino viable que recorre todas las ciudades.\n");
+        printf("Ruta a seguir: ");
+        for (int i = 0; i < numVert; i++){
+            printf("%c ", map->vertList[solution.bestPath[i]].letter);
         }
-        printf("%c\n", map->vertList[path[0]].letter);
+        printf("%c\n", map->vertList[solution.bestPath[0]].letter);
+        printf("Costo total del viaje: %d\n", solution.bestCost);
     }
-
+    /*liberar memoria*/
     free(path);
+    free(visited);
+    free(solution.bestPath);
+}
+
+void findHamiltonianCycle(Graph* map){
+    solvePVV(map);
 }
