@@ -1,5 +1,9 @@
 # Tarea_4_estructura_de_datos
 
+Universidad de Magallanes  
+Facultad de Ingeniería - Estructuras de Datos 2025
+**Profesor**: Christian Vásquez Rebolledo
+
 ## Problema del Vendedor Viajante (TSP)
 
 ### Descripción
@@ -87,23 +91,28 @@ E A 16
 === Bienvenido al Problema del Viajante (PVV) ===
 Escribe 'help' para ver los comandos disponibles.
 
-> start 5
-Grafo preparado para 5 ciudades.
+> start 9
+Grafo preparado para 9 ciudades.
 Usa 'read <archivo>' para cargar las conexiones.
 
 > read map.txt
-Grafo creado con 5 ciudades.
-Conexiones vertice [A]: B(15) C(25)
-Conexiones vertice [B]: A(15) D(10)
-Conexiones vertice [C]: A(25) D(20)
-Conexiones vertice [D]: B(10) C(20) E(15)
-Conexiones vertice [E]: D(15) A(16)
+Grafo creado con 9 ciudades.
+Conexiones vertice [A]: D(3) C(8) B(4)
+Conexiones vertice [B]: E(7) A(4)
+Conexiones vertice [C]: D(2) F(5) A(8)
+Conexiones vertice [D]: C(2) G(6) A(3)
+Conexiones vertice [E]: F(3) H(2) B(7)
+Conexiones vertice [F]: E(3) I(9) C(5)
+Conexiones vertice [G]: H(4) D(6)
+Conexiones vertice [H]: I(1) G(4) E(2)
+Conexiones vertice [I]: H(1) F(9)
 
---- Verificando la existencia de una ruta viable ---
-Existe un camino que recorre todas las ciudades y regresa a la ciudad de origen.
+Buscando ciclo hamiltoniano...
 
-Ruta a seguir: A B D C E A
-Costo total mínimo: 76
+=== Verificando la existencia de una ruta viable ===
+Existe un camino viable que recorre todas las ciudades y vuelve al origen.
+Ruta a seguir: A B E F I H G D C A
+Costo total del viaje: 44
 
 > exit
 Memoria liberada completamente. ¡Adios!
@@ -133,12 +142,6 @@ Si encuentras problemas:
 3. Usa `all` para visualizar el grafo cargado
 4. Revisa que hay suficientes conexiones para formar un ciclo
 
-### Datos Extra
-
-Universidad de Magallanes  
-Facultad de Ingeniería - Estructuras de Datos 2025
-
 ---
 
 **Fecha de entrega**: 15 de diciembre de 2025, 23:59  
-**Profesor**: Christian Vásquez Rebolledo

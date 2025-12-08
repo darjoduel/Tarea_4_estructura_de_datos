@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
 #ifndef STRUCTURES_H
 #define STRUCTURES_H
+#include <stdio.h>
+#include <stdlib.h>
+
 
 typedef struct VertexStruct Vertex;
 typedef struct EdgeStruct Edge;

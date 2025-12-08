@@ -349,7 +349,7 @@ void solvePVV(Graph* map)
     if (!solution.found){
         printf("No existe un camino que recorra todas las ciudades y regrese al origen.\n");
     } else {
-        printf("Existe un camino viable que recorre todas las ciudades.\n");
+        printf("Existe un camino viable que recorre todas las ciudades y vuelve al origen.\n");
         printf("Ruta a seguir: ");
         for (int i = 0; i < numVert; i++){
             printf("%c ", map->vertList[solution.bestPath[i]].letter);

@@ -1,3 +1,6 @@
+#ifndef FUNCTIONS_H
+#define FUNCTIONS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,3 +34,5 @@ void solvePVV(Graph* map);
 bool isSafe(int v, int pos, int path[], Graph* map);
 bool hamiltonianCycleUtil(Graph* map, int path[], int pos);
 void findHamiltonianCycle(Graph* map);
+
+#endif /* FUNCTIONS_H */
