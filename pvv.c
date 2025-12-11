@@ -86,6 +86,12 @@ int main(){
             } else {
                 printf("No hay grafo creado.\n");
             }
+        } else if (cmd_hash == hamiltonian || strcmp(command, "hamil") == 0) {//HAMIL
+            if (cities && cities->vertList) {
+                findHamiltonianCycle(cities);
+            } else {
+                printf("ERROR: Primero crea el grafo con 'start' y carga datos con 'read'\n");
+            }
 
         } else if (cmd_hash == exit_cmd || strcmp(command, "exit") == 0) {//EXIT
             if (cities) {

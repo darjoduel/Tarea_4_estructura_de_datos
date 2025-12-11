@@ -2,6 +2,7 @@
 *.out
 *.obj
 *.o
+graphdata
 pvv
 pvv.exe
 .vscode/
