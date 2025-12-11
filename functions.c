@@ -5,6 +5,14 @@ int FileExists(const char *filename){
     return (stat (filename, &buffer) == 0);
 }
 
+int CharToNum(char *str){// convierte cadena a numero entero positivo
+    int num = atoi(str);
+    if(num < 0){
+        num*= -1;
+    }
+    return num;
+}
+
 /* READ */
 char *CheckGraphText(const char *filename, int size){
     FILE *graph_text = fopen(filename, "a+");
@@ -60,20 +68,6 @@ int CheckLetterInGraph(char *letters, char vertex, int size){
     }
     return -1;
 }
-
-/* ALL */
-void ShowGraph(Graph *cities){
-    for (int i = 0; i < cities->numVertex; i++){
-        printf("Conexiones vertice [%c]:", cities->vertList[i].letter);
-        Edge* curr = cities->vertList[i].edgeListHead;
-        while (curr != NULL){
-            printf(" %c(%d)", curr->destVert->letter, curr->cost);
-            curr = curr->nextEdge;
-        }
-        printf("\n");
-    }
-}
-
 /* START */
 int edgeCreation(int origin, int dest, int cost, Graph* map){
     Edge* newEdge = malloc(sizeof(Edge));
@@ -118,18 +112,12 @@ Graph* createGraph(int size, const char* filename) {
         printf("ERROR: No fue posible abrir el archivo\n");
         return NULL;
     }
-    FILE *graphdata = fopen("graphdata", "r");
-    if (graphdata == NULL) {
-        printf("ERROR: No fue posible abrir el archivo graphdata\n");
-        fclose(graph_text);
-        return NULL;
-    }
+
 
     char *letters = CheckGraphText(filename, size);
     if (letters == NULL) {
         printf("ERROR: No fue posible leer las letras del grafo\n");
         fclose(graph_text);
-        fclose(graphdata);
         free(letters);
         return NULL;
     }
@@ -138,7 +126,6 @@ Graph* createGraph(int size, const char* filename) {
     if (!map){
         free(letters);
         fclose(graph_text);
-        fclose(graphdata);
         return NULL;
     }
 
@@ -149,7 +136,6 @@ Graph* createGraph(int size, const char* filename) {
         free(map);
         free(letters);
         fclose(graph_text);
-        fclose(graphdata);
         return NULL;
     }
 
@@ -174,7 +160,6 @@ Graph* createGraph(int size, const char* filename) {
                 //printf("ERROR: Mas ciudades de las esperadas\n");
                 free(letters);
                 fclose(graph_text);
-                fclose(graphdata);
                 return map;
             }
             v1 = CheckLetterInGraph(letters, v1, size);
@@ -188,7 +173,6 @@ Graph* createGraph(int size, const char* filename) {
                 //printf("ERROR: Mas ciudades de las esperadas\n");
                 free(letters);
                 fclose(graph_text);
-                fclose(graphdata);
                 return map;
             }
             v2 = CheckLetterInGraph(letters, v2, size);
@@ -215,7 +199,6 @@ Graph* createGraph(int size, const char* filename) {
 
     free(letters);
     fclose(graph_text);
-    fclose(graphdata);
     return map;
 }
 

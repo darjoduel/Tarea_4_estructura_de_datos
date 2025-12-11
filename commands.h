@@ -1,59 +1,64 @@
-#ifndef COMMANDS_H
-#define COMMANDS_H
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "functions.h"
 #include "structures.h"
 
-// declaración para evitar inclusión circular
-int FileExists(const char *filename);
-
-int pvv_create(int size){
-    FILE *data = fopen("graphdata", "w");
-    if(!data){
-        return 1;
+Graph *pvv_create(Graph *map, char *size){
+    if(map != NULL){
+        printf("ERROR: El grafo ya ha sido creado.\n");
+        return map;
     }
+    int sizeNum = CharToNum(size);
+    if (sizeNum < 4) {
+        sizeNum = 4;
+        printf("Usando tamano minimo de 4 ciudades.\n");
+    }
+    map = (Graph*)malloc(sizeof(Graph));
+    if (!map) {
+        printf("Error al asignar memoria para el grafo.\n");
+    }
+    map->numVertex = sizeNum;
+    map->vertList = NULL; // Se inicializará en createGraph
 
-    fprintf(data, "tamano:%d\n", size);
-    fclose(data);
-
-    return 0;
+    return map;
 }
 
-int pvv_read(const char* filename) {
-    if (!FileExists(filename)){
-        return 1;
+Graph *pvv_read(Graph *map, const char *filename){
+    if (!map) {
+        printf("ERROR: El grafo no ha sido inicializado. Usa 'start' primero.\n");
+        return map;
     }
-
-    FILE *data = fopen("graphdata", "r");
-    if (!data){
-        printf("Error al abrir graphdata\n");
-        return 1;
+    Graph* newGraph = createGraph(map->numVertex, filename);
+    if (!newGraph) {
+        printf("ERROR: No se pudo crear el grafo desde '%s'.\n", filename);
+        return map;
     }
-
-    int size;
-
-    if (fscanf(data, "tamano:%d\n", &size) != 1){
-        printf("Error al leer tamano\n");
-        fclose(data);
-        return 1;
+    // Liberar el grafo anterior
+    if (map->vertList) {
+        for (int i = 0; i < map->numVertex; i++) {
+            Edge *curr = map->vertList[i].edgeListHead;
+            while (curr) {
+                Edge *temp = curr;
+                curr = curr->nextEdge;
+                free(temp);
+            }
+        }
+        free(map->vertList);
     }
-
-    fclose(data);
-
-    data = fopen("graphdata", "w");
-    if (!data){
-        printf("Error al reabrir graphdata\n");
-        return 1;
-    }
-
-    fprintf(data, "tamano:%d\n", size);
-    fprintf(data, "fuente:%s\n", filename);
-
-    fclose(data);
-
-    return 0;
+    free(map);
+    return newGraph;
 }
 
-#endif /* COMMANDS_H */
+void pvv_all(Graph *cities){
+    for (int i = 0; i < cities->numVertex; i++){
+        printf("Conexiones vertice [%c]:", cities->vertList[i].letter);
+        Edge* curr = cities->vertList[i].edgeListHead;
+        while (curr != NULL){
+            printf(" %c(%d)", curr->destVert->letter, curr->cost);
+            curr = curr->nextEdge;
+        }
+        printf("\n");
+    }
+}
+

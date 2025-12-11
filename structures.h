@@ -8,6 +8,7 @@ typedef struct VertexStruct Vertex;
 typedef struct EdgeStruct Edge;
 typedef struct GraphStruct Graph;
 typedef struct QueueStruct Queue;
+typedef struct pvvSolution_ pvvSolution;
 
 struct QueueStruct{
     int *items;
@@ -35,6 +36,12 @@ struct GraphStruct {
     //Esta lista tendra tamaño fijo, asi que no hay 
     //necesidad de manejar el arreglo dinamico para conectar los vertices
     Vertex* vertList;
+};
+
+struct pvvSolution_{
+    int *bestPath;
+    int bestCost;
+    int found;
 };
 
 #endif
