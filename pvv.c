@@ -7,30 +7,11 @@
 
 Graph* cities = NULL;  // Grafo global
 
-// Hashes simples para eficiencia
-// Cada comando tiene un valor hash precalculado para comparacion rapida
-#define help       61964
-#define start      743628
-#define read       71842
-#define all        5560
-#define exit_cmd   60838
-#define hamiltonian 37604
-
-// Convierte string a un "hash" simple 
-unsigned int simple_hash(const char *str) {
-    unsigned int hash = 0;
-    while (*str) {
-        hash = hash * 31 + (*str++);
-    }
-    return hash;
-}
-
 int main(){
 
     char line[256];
     char command[50];
     char arg[200];
-    //cities->numVertex = 0;
 
     printf("=== Bienvenido al Problema del Viajante (PVV) ===\n");
     printf("Escribe 'help' para ver los comandos disponibles.\n\n");
@@ -51,9 +32,7 @@ int main(){
             continue;
         }
 
-        unsigned int cmd_hash = simple_hash(command);
-
-        if (cmd_hash == help || strcmp(command, "help") == 0) {//HELP
+        if (strcmp(command, "help") == 0) {//HELP
             printf("Comandos disponibles:\n");
             printf("  start [n]        → Crear grafo (n opcional; se detecta auto del archivo)\n");
             printf("  read <archivo>   → Leer conexiones desde archivo\n");
@@ -62,7 +41,7 @@ int main(){
             printf("  exit             → Salir y liberar memoria\n");
             printf("  help             → Mostrar esta ayuda\n\n");
 
-        } else if (cmd_hash == start || strcmp(command, "start") == 0) {
+        } else if (strcmp(command, "start") == 0) {
             cities = pvv_create(cities, arg);
             if(cities){
                 printf("Grafo inicializado con %d ciudades.\n", cities->numVertex);
@@ -71,7 +50,7 @@ int main(){
                 printf("ERROR: No se pudo crear el grafo.\n");
             }
             continue;
-        } else if (cmd_hash == read || strcmp(command, "read") == 0) {//READ
+        } else if (strcmp(command, "read") == 0) {//READ
             cities = pvv_read(cities, arg);
             if (cities->vertList) {
                 printf("Grafo leido desde '%s' con exito.\n", arg);
@@ -81,20 +60,20 @@ int main(){
                 printf("ERROR: No se pudo leer el grafo desde '%s'.\n", arg);
             }
 
-        } else if (cmd_hash == all || strcmp(command, "all") == 0) {//ALL
+        } else if (strcmp(command, "all") == 0) {//ALL
             if (cities) {
                 pvv_all(cities);
             } else {
                 printf("No hay grafo creado.\n");
             }
-        } else if (cmd_hash == hamiltonian || strcmp(command, "hamil") == 0) {//HAMIL
+        } else if (strcmp(command, "hamil") == 0) {//HAMIL
             if (cities && cities->vertList) {
                 findHamiltonianCycle(cities);
             } else {
                 printf("ERROR: Primero crea el grafo con 'start' y carga datos con 'read'\n");
             }
 
-        } else if (cmd_hash == exit_cmd || strcmp(command, "exit") == 0) {//EXIT
+        } else if (strcmp(command, "exit") == 0) {//EXIT
             if (cities) {
                 // Liberación
                 for (int i = 0; i < cities->numVertex; i++) {

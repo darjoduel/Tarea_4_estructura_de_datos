@@ -10,7 +10,7 @@ Graph *pvv_create(Graph *map, char *size){
         return map;
     }
     int sizeNum = CharToNum(size);
-    if (sizeNum < 4) {
+    if (sizeNum < 4) {// Tamaño mínimo para ciclo hamiltoniano
         sizeNum = 4;
         printf("Usando tamano minimo de 4 ciudades.\n");
     }
@@ -47,7 +47,7 @@ Graph *pvv_read(Graph *map, const char *filename){
         free(map->vertList);
     }
     free(map);
-    return newGraph;
+    return newGraph;// Retorna el nuevo grafo creado
 }
 
 void pvv_all(Graph *cities){

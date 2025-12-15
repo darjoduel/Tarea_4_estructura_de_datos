@@ -7,15 +7,8 @@
 typedef struct VertexStruct Vertex;
 typedef struct EdgeStruct Edge;
 typedef struct GraphStruct Graph;
-typedef struct QueueStruct Queue;
 typedef struct pvvSolution_ pvvSolution;
 
-struct QueueStruct{
-    int *items;
-    int front;
-    int rear;
-    int capacity;
-};
 
 struct VertexStruct {
     int id;             // Indice numerico del vertice (0..n-1)
