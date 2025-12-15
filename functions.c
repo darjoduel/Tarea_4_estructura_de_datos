@@ -5,7 +5,14 @@ int FileExists(const char *filename){
     return (stat (filename, &buffer) == 0);
 }
 
-int CharToNum(char *str){// convierte cadena a numero entero positivo
+/**
+ * Convierte cadena a numero entero positivo
+ * usa ascii to integer (atoi) y convierte a positivo si es negativo
+ * 
+ * @param str:   cadena a convertir
+ * @return:      numero entero positivo
+ */
+int CharToNum(char *str){
     int num = atoi(str);
     if(num < 0){
         num*= -1;
@@ -13,7 +20,19 @@ int CharToNum(char *str){// convierte cadena a numero entero positivo
     return num;
 }
 
-/* READ */
+/** READ
+ * Extrae las letras unicas de los vértices desde un archivo del grafo
+ * Lee el archivo linea por linea, dado el formato (A, B, costo) y recolecta
+ * las letras que no hayan sido agregadas antes.
+ * 
+ * @param filename: nombre del archivo de texto que contiene el grafo
+ * @param size:     numero de vertices en el grafo
+ * @return          arreglo dinamico de letras unicas encontradas en el archivo
+ *                  NULL en caso de error
+ * 
+ * Nota: el arreglo retornado DEBE liberarse para evitar memory leaks (free())
+ *       si (size > letras unicas), el arreglo contendra menos elementos 
+ */
 char *CheckGraphText(const char *filename, int size){
     FILE *graph_text = fopen(filename, "a+");
     if (!graph_text){ 
@@ -60,6 +79,16 @@ char *CheckGraphText(const char *filename, int size){
     return letters;
 }
 
+/**
+ * busca una letra en un arreglo de letras de vertice
+ * 
+ * @param letters: arreglo de letras
+ * @param vertex: letra a buscar
+ * @param size: tamaño del arreglo
+ * @return letra si se encuentra, -1 en caso contrario
+ * 
+ * Retorna la letra, no el indice, se espera char o -1
+ */
 int CheckLetterInGraph(char *letters, char vertex, int size){
     for (int i = 0; i < size; i++){
         if (letters[i] == vertex){
@@ -83,6 +112,19 @@ int edgeCreation(int origin, int dest, int cost, Graph* map){
     return 1;
 }
 
+/**
+ * Se usa durante la creacion del grafo
+ * asigna o encuentra un vertice para una letra dada
+ * 
+ * Busca en el grafo si ya existe un vertice con la letra newL
+ * SI EXISTE    : guarda su indice en 'auxI'
+ * SI NO EXISTE : Si se encuentra un slot vacio (letra '\0'), asigna la letra
+ * 
+ * @param newL:   letra a buscar o asignar (se modifica a '\0' si se encuentra)
+ * @param i:      indice actual en el arreglo de vertices (vertList)
+ * @param auxI:   puntero donde se guarda el indice del vertice encontrado/creado
+ * @param map:    grafo donde buscar y asignar 
+ */
 void letterRecognition(char* newL, int i, int* auxI, Graph* map){
     char currL = map->vertList[i].letter;
     
@@ -102,6 +144,19 @@ void letterRecognition(char* newL, int i, int* auxI, Graph* map){
     }
 }
 
+/**
+ * Crea y carga un grafo desde un archivo de texto
+ * Pasos:
+ * 1. verifica que el archivo de hecho exista
+ * 2. lee y extrae vertices basado en las letras en el archivo
+ * 3. asigna memoria para el grafo y los vertices
+ * 4. inicializa el grafo, construyendo una tabla de mapeo letra->indice   
+ * 5. crea las aristas bidirectionales entre vertices
+ * 
+ * @param size:     numero de vertices en el grafo
+ * @param filename: nombre del archivo de texto que contiene el grafo
+ * @return          puntero al grafo creado, NULL en caso de error
+ */
 Graph* createGraph(int size, const char* filename) {
     if (FileExists(filename) == 0){
         printf("ERROR: El archivo no existe\n");
@@ -221,6 +276,18 @@ int getEdgeCost(Graph* map, int from, int to)
     return -1; /*indica que no existe conexión*/
 }
 
+/**
+ * Verifica la seguridad de agregar un vertice al camino hamiltoniano
+ * Debe cumplir:
+ * 1. Si es la primera posición (pos == 0), siempre es seguro
+ * 2. Debe existir una arista desde el ultimo vertice agregado
+ * 
+ * @param v:      vertice 'candidato' a agregar
+ * @param pos:    posicion actual en el camino
+ * @param path:   arreglo que almacena el camino actual
+ * @param map:    puntero al grafo de ciudades
+ * @return:       true si existe conexion desde el ultimo vertice, false si no
+ */
 bool isSafe(int v, int pos, int path[], Graph* map) {
     if (pos==0) return true;
 
@@ -230,7 +297,17 @@ bool isSafe(int v, int pos, int path[], Graph* map) {
     return (cost != -1); /*hay conexion*/
 }
 
-/*retrocedimiento para encontrar el ciclo de menor costo*/
+
+/**
+ * Realiza un retrocedimiento (backtracking) para encontrar el 
+ * ciclo hamiltoniano de menor costo
+ * @param map: puntero al grafo de ciudades
+ * @param path: arreglo que almacena el camino actual
+ * @param visited: arreglo booleano que indica si un vertice ha sido visitado
+ * @param pos: posicion actual en el camino
+ * @param currentCost: costo acumulado del camino actual
+ * @param solution: puntero a la estructura que almacena la mejor solucion encontrada
+ */
 void pvvBacktrack(Graph* map, int path[], bool visited[], int pos, 
                   int currentCost, pvvSolution* solution)
 {
@@ -287,7 +364,20 @@ void pvvBacktrack(Graph* map, int path[], bool visited[], int pos,
     }
 }
 
-/*función para resolver el pvv*/
+/**función para resolver el pvv
+ * Encuentra el ciclo hamiltoniano de menor costo
+ * usando backtracking (retroceso) con poda.
+ * Imprime resultado en la consola al terminar
+ * 
+ * Pasos:
+ * 1. Valida el grafo y asigna memoria
+ * 2. Inicializa estructuras de retroceso
+ * 3. Llama a pvvBactrack() desde vertice 0
+ * 4. Muestra ruta optima y costo (o mensaje de no-existencia)
+ * 5. Libera memoria asignada
+ * 
+ * @param map: puntero al grafo de ciudades
+*/
 void solvePVV(Graph* map)
 {
     if (map == NULL || map -> numVertex < 1)

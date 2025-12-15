@@ -18,10 +18,9 @@ struct QueueStruct{
 };
 
 struct VertexStruct {
-    int id;
-    char letter;
-    //Arreglo dinamico para almacenar los bordes
-    Edge* edgeListHead;
+    int id;             // Indice numerico del vertice (0..n-1)
+    char letter;        // identificador alfabetico del vertice
+    Edge* edgeListHead; // lista enlazada de aristas salientes
 };
 
 //REpresenta un camino unidireccional entre el dueño y otro vertice.
@@ -39,9 +38,9 @@ struct GraphStruct {
 };
 
 struct pvvSolution_{
-    int *bestPath;
-    int bestCost;
-    int found;
+    int *bestPath;   // Arreglo con la mejor ruta encontrada
+    int bestCost;    // Costo total minimo encontrado
+    int found;       // Flag: 1=solucion existe, 0=no existe
 };
 
 #endif

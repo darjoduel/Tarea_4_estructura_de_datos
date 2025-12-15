@@ -7,7 +7,8 @@
 
 Graph* cities = NULL;  // Grafo global
 
-// Hashes simples
+// Hashes simples para eficiencia
+// Cada comando tiene un valor hash precalculado para comparacion rapida
 #define help       61964
 #define start      743628
 #define read       71842
