@@ -435,7 +435,3 @@ void solvePVV(Graph* map)
     free(visited);
     free(solution.bestPath);
 }
-
-void findHamiltonianCycle(Graph* map){
-    solvePVV(map);
-}

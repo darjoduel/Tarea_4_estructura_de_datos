@@ -52,10 +52,10 @@ int main(){
             continue;
         } else if (strcmp(command, "read") == 0) {//READ
             cities = pvv_read(cities, arg);
-            if (cities->vertList) {
+            if (cities && cities->vertList) {
                 printf("Grafo leido desde '%s' con exito.\n", arg);
                 pvv_all(cities);
-                findHamiltonianCycle(cities);
+                solvePVV(cities);
             } else {
                 printf("ERROR: No se pudo leer el grafo desde '%s'.\n", arg);
             }
@@ -68,7 +68,7 @@ int main(){
             }
         } else if (strcmp(command, "hamil") == 0) {//HAMIL
             if (cities && cities->vertList) {
-                findHamiltonianCycle(cities);
+                solvePVV(cities);
             } else {
                 printf("ERROR: Primero crea el grafo con 'start' y carga datos con 'read'\n");
             }

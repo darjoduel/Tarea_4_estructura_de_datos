@@ -23,5 +23,3 @@ void pvvBacktrack(Graph* map, int path[], bool visited[], int pos,
                   int currentCost, pvvSolution* solution);
 void solvePVV(Graph* map);
 bool isSafe(int v, int pos, int path[], Graph* map);
-bool hamiltonianCycleUtil(Graph* map, int path[], int pos);
-void findHamiltonianCycle(Graph* map);
