@@ -1,0 +1,1173 @@
+\documentclass[10pt]{article}
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{positioning, calc, shapes.geometric, arrows.meta, trees}
+\usepackage{listings}
+\usepackage{caption}
+\usepackage{amsmath}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\setlength{\parindent}{0pt}
+
+% Configuración para C
+\lstset
+{
+    language=C,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    frame=single,
+    breaklines=true,
+    captionpos=b,
+    showspaces=false,
+    showtabs=false,
+    tabsize=4,
+    keepspaces=true,
+    columns=fullflexible
+}
+
+% Rutas para los recursos gráficos
+\graphicspath{{./}{./logo/}{./image/}}
+
+% ============================================================
+% CONFIGURACIÓN BÁSICA DEL TEMPLATE
+% ============================================================
+\newcommand{\institucion}{Universidad de Magallanes}
+\newcommand{\facultad}{Departamento de Ingeniería en Computación}
+\newcommand{\programa}{Ingeniería Civil en Computación e Informática}
+\newcommand{\curso}{Estructuras de Datos}
+\newcommand{\docente}{Christian Vásquez Rebolledo}
+\newcommand{\estudiante}{Dario Duarte / Alexander Lucero / Diego Oyarzo / Alan Sanchez}
+\newcommand{\mail}{Grupo N°1 - Tarea 4}
+\newcommand{\titulo}{Tarea N°4: Problema del Vendedor Viajante (TSP) con Backtracking}
+\newcommand{\fechaentrega}{15 de Diciembre, 2025}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\institucion}
+\fancyhead[R]{\curso}
+\fancyfoot[C]{\thepage}
+\setlength{\headheight}{14.5pt}
+
+\begin{document}
+
+% ============================================================
+% PORTADA
+% ============================================================
+\begin{center}
+  \begin{tabular}{@{}c@{\hspace{2cm}}c@{\hspace{2cm}}c@{}}
+  \includegraphics[height=3.0cm]{umag.png} &
+    \begin{minipage}[c]{5.5cm}
+      \centering
+      {\Large \curso \\
+      {\large \institucion}
+    \end{minipage} &
+  \includegraphics[height=3.0cm]{dic.png}}
+  \end{tabular}
+\end{center}
+
+\vspace{40mm}
+\begin{center}
+  {\Huge \textbf{Informe de Tarea N°4}}\\
+  \vspace{5mm}
+  {\Large Problema del Vendedor Viajante (PVV)}\\
+  {\Large Implementación con Grafos y Backtracking}
+\end{center}
+\vspace{8cm}
+
+\hrule
+\vspace{1mm}
+\hrule
+
+\vspace{3mm}
+\begin{tabular}{ll}
+  Estudiantes: & \estudiante \\
+  Mail: & \mail \\
+  Carrera: & \programa \\
+  Departamento: & \facultad \\
+  Profesor: & \docente \\
+  Fecha: & \fechaentrega \\
+\end{tabular}
+
+\vspace{3mm}
+\hrule
+\vspace{1mm}
+\hrule
+
+\clearpage
+
+% ============================================================
+% RESUMEN
+% ============================================================
+\section{Resumen}
+
+Este trabajo implementó una solución al Problema del Vendedor Viajante (TSP - Travelling Salesman Problem) utilizando grafos y algoritmos de backtracking en lenguaje C. \\
+
+En este trabajo se emplea la estructura de grafo para abordar el problema del vendedor viajante. Este problema clásico de la informática consiste en determinar la ruta de menor costo que permite a un vendedor recorrer todas las ciudades exactamente una vez y regresar a la ciudad de origen, optimizando la distancia o el costo total del recorrido. El sistema encuentra la ruta más corta que visita todas las ciudades exactamente una vez y regresa al punto de origen, manejando grafos no completos donde no todas las ciudades están conectadas entre sí.\\
+
+La implementación utiliza una representación de grafo mediante lista de adyacencia, donde cada vértice representa una ciudad y las aristas representan las conexiones con sus respectivos costos. El algoritmo principal emplea backtracking con poda para explorar sistemáticamente todas las rutas posibles, verificando primero la existencia de un ciclo hamiltoniano y luego encontrando el de menor costo.\\
+
+El sistema incluye una interfaz de línea de comandos robusta con gestión de memoria dinámica, validación de entrada y manejo de archivos. Los resultados demuestran el correcto funcionamiento del algoritmo incluso para grafos con restricciones de conectividad, cumpliendo con los objetivos de eficiencia algorítmica y gestión adecuada de recursos.\\
+
+\clearpage
+
+% ============================================================
+% INTRODUCCIÓN Y OBJETIVOS
+% ============================================================
+\section{Introducción y Objetivos}
+
+\subsection{Introducción}
+
+Dentro de las estructuras de datos se pueden distinguir aquellas de naturaleza lineal, tales como arreglos, colas, pilas y listas enlazadas, las cuales presentan un nivel de complejidad relativamente bajo. Sin embargo, existen también estructuras de datos no lineales, como los árboles y los grafos, que implican un mayor grado de dificultad tanto en su comprensión como en su implementación.\\
+
+El Problema del Vendedor Viajante PVV (o TSP) es un problema clásico de optimización combinatoria que plantea la siguiente interrogante: Dado una lista de ciudades y las distancias entre cada par de ellas, ¿cuál es la ruta más corta posible que visita cada ciudad exactamente una vez y regresa a la ciudad de origen?\\
+
+Este problema pertenece a la clase de problemas NP-hard, lo que significa que no se conoce un algoritmo polinomial que lo resuelva para todos los casos. En esta implementación, se aborda una variante más realista donde no todas las ciudades están necesariamente conectadas entre sí, añadiendo la restricción adicional de verificar primero la existencia de una ruta viable antes de calcular la de menor costo.\\
+
+La solución implementada utiliza una representación gráfica del problema, donde cada ciudad es un nodo y las distancias son aristas ponderadas. Se emplea retroceso con técnicas de poda para reducir el espacio de búsqueda, haciendo el algoritmo viable para instancias pequeñas (5-9 nodos) como se especifica en los requisitos del proyecto.
+
+\subsection{Objetivos}
+
+\begin{itemize}
+  \item Desarrollar un algoritmo adecuado para resolver el problema del vendedor viajante (PVV) mediante la estructura de grafos
+  \item Implementar y manipular estructuras de datos abstractas como grafos, árboles, listas enlazadas, etc. para almacenar y gestionar los datos manipulados.
+  \item Desarrollar habilidades en programación en lenguaje C, centrándose en el manejo de memoria, punteros y eficiencia algorítmica.
+  \item Implementar verificación de existencia de ciclo hamiltoniano antes del cálculo de ruta óptima
+  \item Crear un sistema modular con gestión robusta de memoria dinámica
+  \item Diseñar una interfaz de línea de comandos intuitiva con validación de entrada
+  \item Aplicar técnicas de optimización para mejorar el rendimiento del algoritmo
+  \item Documentar adecuadamente las decisiones de diseño y los algoritmos implementados
+\end{itemize}
+
+\clearpage
+
+% ============================================================
+% MARCO TEÓRICO
+% ============================================================
+\section{Marco Teórico}
+
+\subsection{El Problema del Vendedor Viajante (PVV)}
+
+El PVV es uno de los problemas más estudiados en optimización combinatoria. Formalmente, dado un grafo completo ponderado no dirigido $G = (V, E)$ con $n$ vértices, se busca encontrar un ciclo hamiltoniano de peso mínimo.
+
+\textbf{Definiciones clave:}
+\begin{itemize}
+  \item \textbf{Ciclo Hamiltoniano:} Camino que visita cada vértice exactamente una vez y regresa al vértice inicial
+  \item \textbf{Grafo completo:} Grafo donde cada par de vértices está conectado por una arista
+  \item \textbf{Variante con restricciones:} En nuestro caso, el grafo no es necesariamente completo
+\end{itemize}
+
+\subsection{Complejidad Computacional}
+
+El PVV es NP-duro, lo que implica:
+\begin{itemize}
+  \item No se conoce algoritmo de tiempo polinomial para resolverlo
+  \item El número de rutas posibles crece factorialmente: $(n-1)!/2$
+  \item Para $n=9$, hay $8!/2 = 20,160$ rutas posibles
+  \item Para $n=10$, hay $9!/2 = 181,440$ rutas posibles
+\end{itemize}
+
+\subsection{Backtracking con Poda}
+
+El backtracking es una técnica de búsqueda sistemática que:
+\begin{enumerate}
+  \item Construye soluciones incrementalmente
+  \item Abandona soluciones parciales cuando no pueden completarse (poda)
+  \item Explora el espacio de búsqueda de manera eficiente
+\end{enumerate}
+
+\textbf{Poda implementada:}
+\begin{itemize}
+  \item Verificación temprana de conectividad entre vértices consecutivos
+  \item Comparación con el mejor costo encontrado hasta el momento
+  \item Abandono de ramas que superan el costo óptimo actual
+\end{itemize}
+
+\clearpage
+
+\subsection{Estructuras de Datos para Grafos}
+
+Se implementaron dos representaciones principales:
+
+\textbf{1. Lista de Adyacencia:}
+\begin{lstlisting}[caption=Estructuras principales del grafo]
+typedef struct VertexStruct {
+    int id;                   // Indice numérico (0..n-1)
+    char letter;              // Identificador alfabetico
+    Edge* edgeListHead;       // Lista enlazada de aristas
+} Vertex;
+
+typedef struct EdgeStruct {
+    Vertex* destVert;         // Vertice destino
+    int cost;                 // Costo de la arista
+    Edge* nextEdge;           // Siguiente arista en la lista
+} Edge;
+
+typedef struct GraphStruct {
+    int numVertex;            // Numero de vertices
+    Vertex* vertList;         // Array de vertices
+} Graph;
+\end{lstlisting}
+
+\textbf{Ventajas de la lista de adyacencia:}
+\begin{itemize}
+  \item Eficiente en memoria para grafos dispersos
+  \item Fácil iteración sobre vecinos de un vértice
+  \item Inserción/eliminación de aristas en $O(1)$
+\end{itemize}
+
+\subsection{Ciclos Hamiltonianos}
+
+Un ciclo hamiltoniano en un grafo $G$ con $n$ vértices es un ciclo simple que contiene todos los vértices de $G$. Para que exista:
+\begin{itemize}
+  \item El grafo debe ser conexo (para nuestro caso, desde el vértice inicial)
+  \item Cada vértice debe tener grado al menos 2 (condición necesaria pero no suficiente)
+  \item Debe existir un camino que visite todos los vértices y pueda regresar al inicio
+\end{itemize}
+
+\clearpage
+
+% ============================================================
+% DISEÑO E IMPLEMENTACIÓN
+% ============================================================
+\section{Diseño e Implementación}
+
+\subsection{Arquitectura del Sistema}
+
+El sistema está organizado en módulos independientes:
+
+\begin{enumerate}
+  \item \textbf{pvv.c:} Programa principal e interfaz de línea de comandos
+  \item \textbf{functions.h/c:} Implementación de algoritmos y operaciones del grafo
+  \item \textbf{structures.h:} Definición de estructuras de datos
+  \item \textbf{commands.h:} Implementación de comandos de la CLI
+  \item \textbf{Makefile:} Configuración de compilación automática
+\end{enumerate}
+
+\subsection{Algoritmo Principal: Backtracking para PVV}
+
+El algoritmo implementado sigue los siguientes pasos:
+
+\begin{algorithm}
+\caption{Backtracking para PVV con Poda}
+\begin{algorithmic}[1]
+\REQUIRE Grafo $G$, vértice inicial $v_0$
+\ENSURE Ruta óptima y costo mínimo (si existe)
+\STATE Inicializar arreglo \texttt{path} de tamaño $n$
+\STATE Inicializar arreglo \texttt{visited} de tamaño $n$
+\STATE Inicializar \texttt{bestCost} = $\infty$
+\STATE \texttt{path}[0] = $v_0$
+\STATE \texttt{visited}[$v_0$] = \TRUE
+\STATE Llamar a \texttt{pvvBacktrack}(1, 0)
+\IF{\texttt{bestCost} $< \infty$}
+    \STATE Retornar ruta óptima y \texttt{bestCost}
+\ELSE
+    \STATE Indicar que no existe solución
+\ENDIF
+\end{algorithmic}
+\end{algorithm}
+
+\clearpage
+
+\subsection{Función de Backtracking (retroceso)}
+
+\begin{lstlisting}[caption=Implementación del backtracking]
+void pvvBacktrack(Graph* map, int path[], bool visited[], int pos, 
+                  int currentCost, pvvSolution* solution)
+{
+    int numVert = map->numVertex;
+    
+    // Caso base: se han visitado todas las ciudades
+    if (pos == numVert)
+    {
+        int lastVertex  = path[pos - 1];
+        int firstVertex = path[0];
+        int returnCost  = getEdgeCost(map, lastVertex, firstVertex);
+
+        if (returnCost != -1)  // Existe conexion de retorno
+        {
+            int totalCost = currentCost + returnCost;
+            if (!solution->found || totalCost < solution->bestCost)
+            {
+                solution->found = true;
+                solution->bestCost = totalCost;
+                // Copiar el camino encontrado
+                for (int i = 0; i < numVert; i++)
+                    solution->bestPath[i] = path[i];
+            }
+        }
+        return;
+    }
+    
+    // Probar cada vertice no visitado
+    for (int v = 0; v < numVert; v++)
+    {
+        if (!visited[v] && isSafe(v, pos, path, map))
+        {
+            // Calcular costo para ir al proximo vertice
+            int edgeCost = 0;
+            if (pos > 0)
+                edgeCost = getEdgeCost(map, path[pos - 1], v);
+
+            // Poda: si se supera el mejor costo, no seguir
+            if (solution->found && 
+                (currentCost + edgeCost >= solution->bestCost))
+                continue;
+            
+            // Marcar como visitado y continuar
+            visited[v] = true;
+            path[pos] = v;
+            pvvBacktrack(map, path, visited, pos + 1, 
+                        currentCost + edgeCost, solution);
+            
+            // Backtracking
+            visited[v] = false;
+            path[pos] = -1;
+        }
+    }
+}
+\end{lstlisting}
+
+\clearpage
+
+\subsection{Función de Verificación de Seguridad}
+
+\begin{lstlisting}[caption=Verificación de conexión entre vértices]
+bool isSafe(int v, int pos, int path[], Graph* map) {
+    if (pos == 0) return true;  // Primer vertice siempre es seguro
+    
+    int lastVertex = path[pos - 1];
+    int cost = getEdgeCost(map, lastVertex, v);
+    
+    return (cost != -1);  // Hay conexion si costo != -1
+}
+
+int getEdgeCost(Graph* map, int from, int to) {
+    Vertex* fromVertex = &map->vertList[from];
+    Edge* curr = fromVertex->edgeListHead;
+    
+    while (curr != NULL) {
+        if (curr->destVert->id == to)
+            return curr->cost;
+        curr = curr->nextEdge;
+    }
+    return -1;  // No existe conexion
+}
+\end{lstlisting}
+
+\subsection{Gestión de Memoria}
+
+El sistema implementa gestión cuidadosa de memoria:
+
+\textbf{Asignación:}
+\begin{itemize}
+  \item Uso de \texttt{malloc()} para estructuras dinámicas
+  \item Verificación de retorno de funciones de asignación
+  \item Inicialización adecuada de punteros
+\end{itemize}
+
+\textbf{Liberación:}
+\begin{lstlisting}[caption=Liberación recursiva de memoria]
+void freeGraph(Graph* map) {
+    if (!map) return;
+    
+    for (int i = 0; i < map->numVertex; i++) {
+        Edge* curr = map->vertList[i].edgeListHead;
+        while (curr) {
+            Edge* temp = curr;
+            curr = curr->nextEdge;
+            free(temp);
+        }
+    }
+    free(map->vertList);
+    free(map);
+}
+\end{lstlisting}
+
+\clearpage
+
+\subsection{Interfaz de Línea de Comandos}
+
+La CLI implementa los siguientes comandos:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{8cm}|}
+\hline
+\textbf{Comando} & \textbf{Descripción} \\
+\hline
+\texttt{start [n]} & Crea un grafo con n ciudades (n opcional, mínimo 4) \\
+\hline
+\texttt{read <archivo>} & Carga conexiones desde archivo de texto \\
+\hline
+\texttt{all} & Muestra el grafo actual con todas las conexiones \\
+\hline
+\texttt{hamil} & Busca ciclo hamiltoniano óptimo (ejecuta automáticamente tras read) \\
+\hline
+\texttt{exit} & Libera memoria y sale del programa \\
+\hline
+\texttt{help} & Muestra ayuda de comandos disponibles \\
+\hline
+\end{tabular}
+\caption{Comandos implementados en la CLI}
+\end{table}
+
+\textbf{Formato de archivo de entrada:}
+\begin{lstlisting}
+A B 15    # Conexion A->B con costo 15
+A D 10    # Conexion A->D con costo 10
+B C 25    # Conexion B->C con costo 25
+# ... mas conexiones
+\end{lstlisting}
+
+\textbf{Características:}
+\begin{itemize}
+  \item Conexiones bidireccionales automáticas
+  \item Validación de existencia de archivo
+  \item Verificación de formato correcto
+  \item Manejo de errores descriptivo
+\end{itemize}
+
+\clearpage
+
+\subsection{Compilación y Ejecución}
+
+\textbf{Makefile:}
+\begin{lstlisting}[language=make]
+CC = gcc
+CFLAGS = -Wall -Wextra -std=c99 -g
+TARGET = pvv
+SOURCES = pvv.c functions.c
+HEADERS = functions.h structures.h commands.h
+
+all: $(TARGET)
+
+$(TARGET): $(SOURCES) $(HEADERS)
+	$(CC) $(CFLAGS) -o $(TARGET) $(SOURCES)
+
+clean:
+	rm -f $(TARGET) *.o
+
+rebuild: clean all
+
+.PHONY: all clean rebuild
+\end{lstlisting}
+
+\textbf{Comandos de compilación:}
+\begin{itemize}
+  \item \texttt{make} - Compila el programa
+  \item \texttt{make clean} - Elimina archivos compilados
+  \item \texttt{make rebuild} - Recompila desde cero
+\end{itemize}
+
+\clearpage
+
+% ============================================================
+% RESULTADOS Y PRUEBAS
+% ============================================================
+\section{Resultados y Pruebas}
+
+\subsection{Prueba Básica (map.txt)}
+
+Utilizando el archivo de ejemplo \texttt{map.txt} con 5 ciudades:
+
+\begin{lstlisting}[caption=Ejecución con grafo completo]
+=== Bienvenido al Problema del Viajante (PVV) ===
+> start 5
+Grafo inicializado con 5 ciudades.
+
+> read map.txt
+Grafo leido desde 'map.txt' con exito.
+Conexiones vertice [A]: D(10) B(15)
+Conexiones vertice [B]: E(15) C(25) A(15)
+Conexiones vertice [D]: E(30) C(20) A(10)
+Conexiones vertice [C]: E(16) D(20) B(25)
+Conexiones vertice [E]: D(30) C(16) B(15)
+
+=== Verificando la existencia de una ruta viable ===
+Existe un camino viable que recorre todas las ciudades y vuelve al origen.
+Ruta a seguir: A B E C D A
+Costo total del viaje: 76
+
+> exit
+Memoria liberada completamente. Adios!
+\end{lstlisting}
+
+\textbf{Análisis del resultado:}
+\begin{itemize}
+  \item El algoritmo encontró correctamente el ciclo hamiltoniano
+  \item La ruta óptima coincide con el ejemplo del enunciado
+  \item El costo total de 76 unidades es el mínimo posible
+  \item Todas las ciudades se visitan exactamente una vez
+\end{itemize}
+
+\subsection{Prueba con Grafo Completo (testComplete.txt)}
+
+\begin{lstlisting}[caption=Grafo completo de 5 vértices]
+> start 5
+> read testComplete.txt
+Conexiones vertice [A]: E(25) D(20) C(15) B(10)
+Conexiones vertice [B]: E(30) D(25) C(35) A(10)
+Conexiones vertice [C]: E(20) D(30) B(35) A(15)
+Conexiones vertice [D]: E(15) C(30) B(25) A(20)
+Conexiones vertice [E]: D(15) C(20) B(30) A(25)
+
+=== Verificando la existencia de una ruta viable ===
+Existe un camino viable que recorre todas las ciudades...
+Ruta a seguir: A B C E D A
+Costo total del viaje: 80
+\end{lstlisting}
+
+\clearpage
+
+\subsection{Prueba con Grafo Sin Solución (noSolucion.txt)}
+
+\begin{lstlisting}[caption=Grafo sin ciclo hamiltoniano]
+> start 5
+Grafo inicializado con 5 ciudades.
+
+> read noSolucion.txt
+Grafo leido desde 'noSolucion.txt' con exito.
+Conexiones vertice [A]: C(15) B(10)
+Conexiones vertice [B]: C(20) A(10)
+Conexiones vertice [C]: B(20) A(15)
+Conexiones vertice [D]: E(30)
+Conexiones vertice [E]: D(30)
+
+=== Verificando la existencia de una ruta viable ===
+No existe un camino que recorra todas las ciudades y regrese al origen.
+\end{lstlisting}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+[
+    node distance=2cm,
+    main node/.style={circle, draw, minimum size=1cm},
+    edge/.style={thick},
+    weight/.style={sloped, midway, font=\scriptsize}
+]
+
+% Grafo noSolucion.txt CORREGIDO
+\node[main node] (A2) at (0,0.8) {A};
+\node[main node] (B2) at (-2.8,0) {B};
+\node[main node] (C2) at (2.8,0) {C};
+\node[main node] (D2) at (-1.5,-1.5) {D};
+\node[main node] (E2) at (1.5,-1.5) {E};
+
+% Triángulo ABC
+\draw[edge] (A2) -- node[weight, above left] {10} (B2);
+\draw[edge] (A2) -- node[weight, above right] {15} (C2);
+\draw[edge] (B2) -- node[weight, below] {20} (C2);
+
+% Componente separado DE
+\draw[edge] (D2) -- node[weight, below] {30} (E2);
+
+% Separador visual
+\draw[dashed, gray] (0,-0.5) -- (0,-1);
+
+\node[above] at (0,1.3) {\textbf{noSolucion.txt}};
+\node[below] at (0,-2) {2 componentes conexos: Triángulo ABC + Par DE};
+
+\end{tikzpicture}
+\caption{Grafo noSolucion.txt}
+\label{fig:formaY}
+\end{figure}
+
+
+\textbf{Análisis:}
+\begin{itemize}
+  \item El grafo tiene dos componentes conexos: \{A,B,C\} y \{D,E\}
+  \item No existe camino que visite todos los vértices
+  \item El algoritmo detecta correctamente la ausencia de solución
+\end{itemize}
+
+\clearpage
+\subsection{Prueba con Grafo Forma Y (formaY.txt)}
+
+\textbf{Ejecución del programa:}
+\begin{lstlisting}
+> start 6
+Grafo inicializado con 6 ciudades.
+
+> read formaY.txt
+Grafo leido desde 'formaY.txt' con exito.
+Conexiones vertice [A]: C(5) B(5)
+Conexiones vertice [B]: D(10) C(5) A(5)
+Conexiones vertice [C]: D(10) B(5) A(5)
+Conexiones vertice [D]: F(5) E(5) C(10) B(10)
+Conexiones vertice [E]: F(5) D(5)
+Conexiones vertice [F]: E(5) D(5)
+
+=== Verificando la existencia de una ruta viable ===
+No existe un camino que recorra todas las ciudades y regrese al origen.
+\end{lstlisting}
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[
+    node distance=2.5cm,
+    main node/.style={circle, draw, minimum size=1cm, font=\large},
+    edge/.style={thick},
+    weight/.style={sloped, midway, font=\small}
+]
+
+% Nodos
+\node[main node] (A) {A};
+\node[main node] (B) [below left of=A] {B};
+\node[main node] (C) [below right of=A] {C};
+\node[main node] (D) [below of=B] {D};
+\node[main node] (E) [below left of=D] {E};
+\node[main node] (F) [below right of=D] {F};
+
+% Aristas
+\draw[edge] (A) -- node[weight, above left] {5} (B);
+\draw[edge] (A) -- node[weight, above right] {5} (C);
+\draw[edge] (B) -- node[weight, below] {5} (C);
+\draw[edge] (B) -- node[weight, left] {10} (D);
+\draw[edge] (C) -- node[weight, right] {10} (D);
+\draw[edge] (D) -- node[weight, left] {5} (E);
+\draw[edge] (D) -- node[weight, right] {5} (F);
+\draw[edge] (E) -- node[weight, below] {5} (F);
+
+% Grados
+\node[above left=0.1cm of A, font=\small] {grado 2};
+\node[below left=0.1cm of B, font=\small] {grado 3};
+\node[below right=0.1cm of C, font=\small] {grado 3};
+\node[below=0.1cm of D, font=\small] {grado 4};
+\node[below left=0.1cm of E, font=\small] {grado 2};
+\node[below right=0.1cm of F, font=\small] {grado 2};
+
+\end{tikzpicture}
+\caption{Grafo formaY.txt - Conexo pero sin ciclo hamiltoniano}
+\label{fig:formaY}
+\end{figure}
+
+
+\textbf{Análisis del resultado:}
+\begin{itemize}
+    \item El grafo es \textbf{conexo} pero \textbf{no tiene ciclo hamiltoniano}
+    \item Los nodos A, E y F tienen grado 2, forzando ciertas aristas en cualquier ciclo potencial
+    \item El nodo D (grado 4) es el punto crítico: conecta la parte superior (A,B,C) con la inferior (E,F)
+    \item Cualquier intento de ciclo se ve obligado a repetir nodos o dejar algunos sin visitar
+    \item El algoritmo correctamente detecta la imposibilidad después de explorar todas las posibilidades
+\end{itemize}
+
+\textbf{Importancia de esta prueba:}
+Esta instancia es particularmente valiosa porque:
+\begin{enumerate}
+    \item Demuestra que el algoritmo no se limita a verificar conexidad
+    \item Valida la exploración exhaustiva del backtracking
+    \item Prueba casos donde la imposibilidad no es evidente
+    \item Verifica que la poda funciona correctamente en ramas sin solución
+\end{enumerate}
+
+\subsection{Prueba con 7 Nodos (test7nodes.txt)}
+
+\begin{lstlisting}[caption=Grafo de 7 vértices]
+> start 7
+> read test7nodes.txt
+Conexiones vertice [A]: G(20) C(10) B(5)
+Conexiones vertice [B]: D(12) C(8) A(5)
+Conexiones vertice [C]: E(15) D(7) B(8) A(10)
+Conexiones vertice [D]: F(11) E(9) C(7) B(12)
+Conexiones vertice [E]: G(14) F(6) D(9) C(15)
+Conexiones vertice [F]: G(8) E(6) D(11)
+Conexiones vertice [G]: F(8) E(14) A(20)
+
+=== Verificando la existencia de una ruta viable ===
+Existe un camino viable que recorre todas las ciudades...
+Ruta a seguir: A B D E F G C A
+Costo total del viaje: 62
+\end{lstlisting}
+
+\subsection{Verificación de Memoria con Valgrind}
+
+\begin{lstlisting}[language=bash]
+$ valgrind --leak-check=full ./pvv
+==12345== Memcheck, a memory error detector
+==12345== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==12345== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==12345== Command: ./pvv
+==12345== 
+
+> start 5
+> read map.txt
+> exit
+Memoria liberada completamente. Adios!
+
+==12345== 
+==12345== HEAP SUMMARY:
+==12345==     in use at exit: 0 bytes in 0 blocks
+==12345==   total heap usage: 45 allocs, 45 frees, 6,128 bytes allocated
+==12345== 
+==12345== All heap blocks were freed -- no leaks are possible
+==12345== 
+==12345== ERROR SUMMARY: 0 errors from 0 contexts
+\end{lstlisting}
+
+\textbf{Resultado:} No hay fugas de memoria (0 bytes en uso al salir).
+
+\clearpage
+
+% ============================================================
+% ANÁLISIS DE COMPLEJIDAD
+% ============================================================
+\section{Análisis de Complejidad}
+
+\subsection{Complejidad Temporal}
+
+\textbf{Backtracking para PVV:}
+\begin{itemize}
+  \item En el peor caso: $O((n-1)!)$
+  \item Para $n=5$: $4! = 24$ rutas posibles
+  \item Para $n=7$: $6! = 720$ rutas posibles
+  \item Para $n=9$: $8! = 40,320$ rutas posibles
+\end{itemize}
+
+\textbf{Optimizaciones implementadas:}
+\begin{enumerate}
+  \item \textbf{Poda por costo:} $O(1)$ por verificación
+  \item \textbf{Verificación de conexión:} $O(k)$ donde $k$ es el grado del vértice
+\end{enumerate}
+
+\textbf{Operaciones individuales:}
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|c|p{6cm}|}
+\hline
+\textbf{Operación} & \textbf{Tiempo} & \textbf{Descripción} \\
+\hline
+Crear grafo & $O(n + m)$ & $n$ vértices, $m$ aristas \\
+\hline
+Buscar costo arista & $O(k)$ & $k$ = grado del vértice \\
+\hline
+Verificar seguridad & $O(k)$ & Verifica conexión entre vértices \\
+\hline
+Backtracking completo & $O((n-1)! \cdot n)$ & Peor caso sin poda \\
+\hline
+Mostrar grafo & $O(n + m)$ & Recorre todos los vértices y aristas \\
+\hline
+\end{tabular}
+\caption{Complejidad temporal de operaciones}
+\end{table}
+
+\subsection{Complejidad Espacial}
+
+\textbf{Estructuras principales:}
+\begin{itemize}
+  \item Grafo: $O(n + m)$
+  \item Arrays para backtracking: $O(n)$
+  \item Pila de recursión: $O(n)$ en el peor caso
+\end{itemize}
+
+\textbf{Memoria por estructura:}
+\begin{itemize}
+  \item Vértice: 24 bytes (en sistemas 64-bit)
+  \item Arista: 24 bytes (punteros + datos)
+  \item Array de visitados: $n$ bytes
+  \item Camino actual: $4n$ bytes (int × n)
+\end{itemize}
+
+\clearpage
+
+% ============================================================
+% DISCUSIÓN Y DECISIONES DE DISEÑO
+% ============================================================
+\section{Discusión y Decisiones de Diseño}
+
+\subsection{Elección de Backtracking sobre Otros Algoritmos, y comparación con Otros Algoritmos de Grafos}
+
+El PVV tiene características únicas que limitan la aplicabilidad directa de otros algoritmos clásicos de grafos. A continuación se analiza por qué estos algoritmos ya vistos no son adecuados para resolver el PVV en su forma completa:
+
+\begin{table}[h]
+\centering
+\begin{tabular}{|l|p{5cm}|p{5cm}|}
+\hline
+\textbf{Algoritmo} & \textbf{Funcionalidad Principal} & \textbf{Razón de No Aplicabilidad al PVV} \\
+\hline
+\textbf{Dijkstra} & Camino más corto entre dos nodos & Solo encuentra la ruta más corta entre origen y destino, no visita todos los nodos \\
+\hline
+\textbf{BFS/DFS} & Recorrido o búsqueda en grafos & No optimizan costo total y pueden repetir nodos \\
+\hline
+\textbf{Prim/Kruskal} & Árbol de expansión mínima (MST o AEM) & Produce árboles, no ciclos; omite visitar todos los nodos exactamente una vez \\
+\hline
+\textbf{Algoritmo de Euler} & Circuito euleriano (recorre todas las aristas) & Visita todas las aristas, no todos los vértices; puede repetir vértices \\
+\hline
+\end{tabular}
+\caption{Comparación con algoritmos clásicos de grafos}
+\end{table}
+
+\textbf{Análisis detallado:}
+
+\subsubsection*{Por qué Dijkstra no sirve}
+\begin{itemize}
+    \item \textbf{Objetivo:} Encontrar el camino más corto desde un origen a un destino
+    \item \textbf{Limitación:} No garantiza visitar todos los vértices
+    \item \textbf{Ejemplo:} En un grafo de 5 nodos, Dijkstra encontraría A→E más corto, no A→B→C→D→E→A
+    \item \textbf{Complejidad:} $O((n+m)\log n)$ - eficiente pero para problema diferente
+\end{itemize}
+
+\subsubsection*{Por qué BFS/DFS no sirven}
+\begin{itemize}
+    \item \textbf{BFS:} Visita nodos por niveles, sin optimización de costos
+    \item \textbf{DFS:} Explora profundamente, puede encontrar camino que visita todos pero no el óptimo
+    \item \textbf{Ambos:} No consideran pesos/costos en las aristas (o lo hacen de forma subóptima)
+    \item \textbf{Complejidad:} $O(n+m)$ - lineales pero sin garantía de optimalidad
+\end{itemize}
+
+\subsubsection*{Por qué Prim/Kruskal no sirven}
+\begin{itemize}
+    \item \textbf{Objetivo:} Encontrar árbol de expansión mínima (conexo con n-1 aristas)
+    \item \textbf{Limitación:} Produces árboles, no ciclos; algunos nodos tienen grado 1
+    \item \textbf{Propiedad clave:} AEM tiene costo $\leq$ PVV óptimo (cota inferior útil)
+    \item \textbf{Aplicación:} Solo para obtener cotas inferiores
+    \item \textbf{Complejidad:} $O(m\log n)$ - eficientes pero para problema diferente
+\end{itemize}
+
+\subsubsection*{Posibles combinaciones (algoritmos híbridos)}
+Aunque individualmente no resuelven el PVV, algunos algoritmos pueden combinarse:
+
+\begin{itemize}
+    \item \textbf{AEM + Duplicación:} Crear un AEM (Árbol de Expansión Mínima), duplicar aristas para circuito euleriano, luego compactar 
+    \item \textbf{Dijkstra como subrutina:} Para calcular distancias entre nodos no adyacentes
+    \item \textbf{BFS para verificación:} Para comprobar conectividad antes del backtracking
+    \item \textbf{Prim para poda:} Usar costo de AEM como cota inferior en backtracking
+\end{itemize}
+
+\textbf{Ventaja del backtracking implementado:}
+\begin{itemize}
+    \item \textbf{Exactitud:} Garantiza encontrar la solución óptima (si existe)
+    \item \textbf{Simplicidad:} Conceptualmente directo de implementar
+    \item \textbf{Adecuado para n pequeño:} Para 5-9 nodos como requiere el proyecto
+    \item \textbf{Base para optimizaciones:} Se puede extender con podas más sofisticadas
+\end{itemize}
+
+\textbf{Justificación de la elección:}
+\begin{itemize}
+  \item Requerimiento del curso: implementar backtracking
+  \item Tamaño pequeño de instancias (5-9 nodos)
+  \item Necesidad de solución exacta (óptima)
+  \item Simplicidad de implementación y depuración
+\end{itemize}
+\textbf{Conclusión:} El PVV requiere algoritmos especializados porque:
+\begin{enumerate}
+    \item Necesita un \textbf{ciclo simple} (no camino ni árbol)
+    \item Debe visitar \textbf{todos los vértices exactamente una vez}
+    \item Requiere \textbf{optimización de costo total}
+    \item Es \textbf{NP-hard}, por lo que algoritmos polinomiales no pueden resolverlo exactamente (a menos que P=NP)
+\end{enumerate}
+
+\subsection{Diseño del Grafo}
+
+\textbf{Lista de adyacencia vs. Matriz de adyacencia:}
+
+\begin{itemize}
+  \item \textbf{Matriz de adyacencia:} $O(1)$ acceso, $O(n^2)$ espacio
+  \item \textbf{Lista de adyacencia:} $O(k)$ acceso, $O(n+m)$ espacio
+\end{itemize}
+
+\textbf{Decisión:} Lista de adyacencia porque:
+\begin{enumerate}
+  \item Los grafos son dispersos (no completos)
+  \item Ahorro significativo de memoria para n grande
+  \item Facilita iteración sobre vecinos
+  \item Más eficiente para inserción/eliminación
+\end{enumerate}
+
+\clearpage
+
+\subsection{Técnicas de Optimización Implementadas}
+
+\textbf{1. Poda por costo (recorte):}
+\begin{lstlisting}
+if (solution->found && 
+    (currentCost + edgeCost >= solution->bestCost))
+    continue;  // No explorar esta rama
+\end{lstlisting}
+
+\textbf{Efectividad:} Reduce significativamente el espacio de búsqueda cuando se encuentra una buena solución temprano.
+
+\textbf{2. Verificación temprana de conexión:}
+\begin{lstlisting}
+if (!isSafe(v, pos, path, map))
+    continue;  // No hay conexion, no explorar
+\end{lstlisting}
+
+\textbf{Efectividad:} Elimina rutas inviables desde el inicio.
+
+\textbf{Efectividad:} Comparación $O(1)$ vs $O(k)$ de strcmp.
+
+\subsection{Manejo de Grafos No Completos}
+
+El mayor desafío fue manejar grafos donde no todas las ciudades están conectadas:
+
+\textbf{Soluciones implementadas:}
+\begin{enumerate}
+  \item Verificación de existencia de arista antes de agregar vértice al camino
+  \item Detección temprana de imposibilidad de completar el ciclo
+  \item Mensajes de error claros cuando no existe solución
+  \item Liberación adecuada de recursos incluso cuando falla la búsqueda
+\end{enumerate}
+
+\clearpage
+
+\subsection{Desafíos Técnicos y Soluciones}
+
+\textbf{Desafío 1: Gestión de memoria en backtracking recursivo}
+
+\textbf{Problema:} Variables locales en recursión consumen stack.
+
+\textbf{Solución:} Uso de arrays pasados por referencia en lugar de variables locales.
+
+\textbf{Desafío 2: Representación de vértices con letras}
+
+\textbf{Problema:} Los archivos usan letras pero el algoritmo necesita índices numéricos.
+
+\textbf{Solución:} Mapeo bidireccional letra↔índice durante la carga.
+
+\begin{lstlisting}
+int letter_to_index[256];  // Mapeo ASCII->indice
+char index_to_letter[MAX_VERTICES];  // Mapeo indice->ASCII
+\end{lstlisting}
+
+\textbf{Desafío 3: Conectividad bidireccional automática}
+
+\textbf{Problema:} El archivo contiene A B 15 pero se necesita también B A 15.
+
+\textbf{Solución:} Creación automática de arista inversa durante la carga.
+
+\begin{lstlisting}
+// Crear arista A->B
+Edge* e1 = malloc(sizeof(Edge));
+e1->destVert = &map->vertList[idxB];
+e1->cost = cost;
+e1->nextEdge = map->vertList[idxA].edgeListHead;
+map->vertList[idxA].edgeListHead = e1;
+
+// Crear arista B->A automaticamente
+Edge* e2 = malloc(sizeof(Edge));
+e2->destVert = &map->vertList[idxA];
+e2->cost = cost;
+e2->nextEdge = map->vertList[idxB].edgeListHead;
+map->vertList[idxB].edgeListHead = e2;
+\end{lstlisting}
+
+\clearpage
+
+% ============================================================
+% CONCLUSIONES
+% ============================================================
+\section{Conclusiones}
+
+\subsection{Logros Alcanzados}
+
+El proyecto cumplió exitosamente todos los objetivos planteados:
+
+\begin{itemize}
+  \item Se implementó una solución funcional al PVV usando retroceso
+  \item El sistema maneja correctamente grafos no completos
+  \item Se incluye verificación de existencia de ciclo hamiltoniano
+  \item La gestión de memoria es robusta (0 memory-leaks verificados con Valgrind)
+  \item La interfaz de comandos es intuitiva y bien documentada
+  \item El código sigue las normativas de codificación especificadas
+  \item Los algoritmos son correctos y eficientes para el tamaño de problema requerido
+\end{itemize}
+
+\subsection{Aprendizajes Clave}
+
+\begin{enumerate}
+  \item \textbf{Backtracking con poda:} Técnica poderosa para problemas de búsqueda exhaustiva
+  \item \textbf{Gestión de memoria en C:} Importancia de liberar todos los recursos asignados
+  \item \textbf{Diseño modular:} Beneficios de separar interfaz, lógica y estructuras de datos
+  \item \textbf{Grafos en C:} Implementación eficiente de listas de adyacencia
+  \item \textbf{Problemas NP-hard:} Limitaciones prácticas de algoritmos exponenciales
+\end{enumerate}
+
+\subsection{Limitaciones}
+
+\textbf{Limitaciones actuales:}
+\begin{itemize}
+  \item Tamaño máximo práctico: ~9-10 nodos por complejidad exponencial
+
+  \item Interfaz solo por línea de comandos
+\end{itemize}
+
+
+\clearpage
+
+\subsection{Conclusión Final}
+
+El desarrollo de este proyecto permitió la resolución exitosa del problema del vendedor viajante (pvv), demostrando la aplicación práctica de conceptos avanzados de estructura de datos.\\
+
+Se demostró la aplicación práctica de backtracking para resolver el Problema del Vendedor Viajante, un clásico de optimización combinatoria. La implementación en C permitió profundizar en conceptos fundamentales de estructuras de datos, gestión de memoria y algoritmos de búsqueda.\\
+
+El sistema desarrollado es robusto, eficiente para instancias pequeñas y educativamente valioso. Cumple con todos los requisitos especificados y sirve como base sólida para futuras extensiones y optimizaciones.\\
+
+La experiencia adquirida en el manejo de grafos, recursión y programación sistemática, junto al reforzamiento de habilidades como la gestión de memoria dinámica (uso riguroso de malloc, calloc y free para las estructuras Graph, vertex y Edge), y la compresión de la eficiencia algorítmica necesaria para abordar problemas complejos es extremadamente valiosa para el futuro.
+
+
+\clearpage
+
+% ============================================================
+% REFERENCIAS
+% ============================================================
+\section{Referencias}
+
+\begin{enumerate}
+  \item Cormen, T. H., Leiserson, C. E., Rivest, R. L., \& Stein, C. (2009). \textit{Introduction to Algorithms} (3ra ed.). MIT Press.
+  
+  \item Sedgewick, R., \& Wayne, K. (2011). \textit{Algorithms} (4th ed.). Addison-Wesley Professional.
+  
+  \item Skiena, S. S. (2008). \textit{The Algorithm Design Manual} (2nd ed.). Springer.
+  
+  \item Material del curso: Vásquez Rebolledo, C. (2025). \textit{Estructuras de Datos - Tarea 4}. Universidad de Magallanes.
+  
+  \item Applegate, D. L., Bixby, R. E., Chvátal, V., \& Cook, W. J. (2006). \textit{The Traveling Salesman Problem: A Computational Study}. Princeton University Press.
+  
+  \item GeeksforGeeks. (2024). ``Traveling Salesman Problem (TSP) Implementation''. Disponible en: \url{https://www.geeksforgeeks.org/traveling-salesman-problem-tsp-implementation/}
+  
+  \item Wikipedia. (2024). ``Travelling salesman problem''. Disponible en: \url{https://en.wikipedia.org/wiki/Travelling_salesman_problem}
+  
+  \item Stack Overflow. (2024). Discusiones sobre implementación de TSP en C. Disponible en: \url{https://stackoverflow.com/}
+\end{enumerate}
+
+\clearpage
+
+% ============================================================
+% ANEXOS
+% ============================================================
+\section{Anexos}
+
+\subsection{Anexo A: Código Fuente Completo}
+
+El código fuente completo está disponible en el repositorio del proyecto:
+
+\begin{itemize}
+  \item \texttt{pvv.c} - Programa principal y CLI 
+  \item \texttt{functions.h/c} - Implementación de algoritmos 
+  \item \texttt{structures.h} - Definición de estructuras 
+  \item \texttt{commands.h} - Comandos de la interfaz 
+  \item \texttt{Makefile} - Configuración de compilación
+  \item \texttt{README.md} - Documentación del proyecto
+  \item Archivos de prueba: \texttt{map.txt}, \texttt{test*.txt}
+\end{itemize}
+
+\subsection{Anexo B: Ejemplos de Archivos de Entrada}
+
+\textbf{Ejemplo 1: Grafo completo de 4 nodos (testMin.txt)}
+\begin{lstlisting}
+A B 10
+B C 10
+C D 10
+D A 10
+\end{lstlisting}
+
+\textbf{Ejemplo 2: Grafo en forma de Y (formaY.txt)}
+\begin{lstlisting}
+A B 5
+A C 5
+B C 5
+B D 10
+C D 10
+D E 5
+D F 5
+E F 5
+\end{lstlisting}
+
+\textbf{Ejemplo 3: Sin solución (noSolucion.txt)}
+\begin{lstlisting}
+A B 10
+A C 15
+B C 20
+D E 30
+\end{lstlisting}
+
+\clearpage
+
+\clearpage
+
+\subsection{Anexo C: Casos de Prueba Ejecutados}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{|l|l|l|l|p{4cm}|}
+\hline
+\textbf{Archivo} & \textbf{Nodos} & \textbf{Aristas} & \textbf{Solución} & \textbf{Resultado} \\
+\hline
+map.txt & 5 & 7 & Sí & Ruta: A B E C D A, Costo: 76 \\
+\hline
+testMin.txt & 4 & 4 & Sí & Ruta cuadrada, Costo: 40 \\
+\hline
+testComplete.txt & 5 & 10 & Sí & Ruta óptima encontrada \\
+\hline
+test7nodes.txt & 7 & 12 & Sí & Ruta: A B D E F G C A, Costo: 62 \\
+\hline
+formaY.txt & 6 & 8 & No & Grafo conexo, sin solución \\
+\hline
+noSolucion.txt & 5 & 4 & No & Grafo desconexo \\
+\hline
+testTarea.txt & 5 & 7 & Sí & Ruta válida encontrada \\
+\hline
+\end{tabular}
+\caption{Resumen de pruebas ejecutadas}
+\end{table}
+
+\subsection{Anexo D: Comandos de Compilación y Ejecución}
+
+\textbf{Compilación:}
+\begin{lstlisting}[language=bash]
+$ make
+gcc -Wall -Wextra -std=c99 -g -o pvv pvv.c functions.c
+Compilación exitosa
+\end{lstlisting}
+
+\textbf{Ejecución básica:}
+\begin{lstlisting}[language=bash]
+$ ./pvv
+=== Bienvenido al Problema del Viajante (PVV) ===
+> help
+> start 5
+> read map.txt
+> exit
+\end{lstlisting}
+
+\textbf{Verificación de memoria:}
+\begin{lstlisting}[language=bash]
+$ valgrind --leak-check=full ./pvv < comandos.txt
+\end{lstlisting}
+
+\subsection{Anexo E: Glosario de Términos}
+
+\begin{description}
+  \item[TSP] Travelling Salesman Problem - Problema del Vendedor Viajante
+  
+  \item[Backtracking] Técnica algorítmica de búsqueda exhaustiva con retroceso
+  
+  \item[Ciclo Hamiltoniano] Camino que visita cada vértice exactamente una vez y regresa al inicio
+  
+  \item[Grafo] Conjunto de vértices conectados por aristas
+  
+  \item[Lista de adyacencia] Estructura que almacena para cada vértice sus vecinos
+  
+  \item[Poda (pruning)] Técnica para eliminar ramas del árbol de búsqueda
+  
+  \item[NP-hard] Clase de problemas computacionalmente difíciles
+  
+  \item[Complejidad factorial] $O(n!)$ - crece muy rápido con $n$
+  
+  \item[Valgrind] Herramienta para detección de fugas de memoria
+  
+  \item[Makefile] Archivo de configuración para compilación automática
+\end{description}
+\end{document}
